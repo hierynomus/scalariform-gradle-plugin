@@ -16,7 +16,7 @@ dependencies {
     compile "org.scalariform:scalariform_2.10:0.1.4"
     compile gradleApi()
     groovy localGroovy()
-    testCompile 'junit:junit:4.8.1'
+    testCompile 'junit:junit:4.11'
 }
 
 task sourcesJar(type: Jar) {
@@ -54,12 +54,12 @@ uploadArchives {
             }
 
             pom.project {
-                name 'license-gradle-plugin'
-                description 'Applies a header to files, typically a license'
-                url 'https://github.com/hierynomus/gradle-plugins'
-                inceptionYear '2011'
+                name 'scalariform-gradle-plugin'
+                description 'Applies scalariform to all scala files in your project'
+                url 'https://github.com/hierynomus/scalariform-gradle-plugin'
+                inceptionYear '2013'
 
-                scm { url 'https://github.com/hierynomus/gradle-plugins' }
+                scm { url 'https://github.com/hierynomus/scalariform-gradle-plugin' }
 
                 licenses {
                     license {
@@ -76,17 +76,6 @@ uploadArchives {
                         url 'http://www.javadude.nl/'
                         email 'jeroen@javadude.nl'
                         roles { role 'Developer' }
-                    }
-                }
-
-                contributors {
-                    contributor {
-                        name 'Tim Harsch'
-                        email 'harschware@yahoo.com'
-                    }
-                    contributor {
-                        name 'Justin Ryan'
-                        email 'jryan@netflix.com'
                     }
                 }
             }

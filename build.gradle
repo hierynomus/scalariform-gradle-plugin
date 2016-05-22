@@ -15,7 +15,6 @@ dependencies {
     compile "org.scala-lang:scala-library:2.10.1"
     compile "org.scalariform:scalariform_2.10:0.1.4"
     compile gradleApi()
-    groovy localGroovy()
     testCompile 'junit:junit:4.11'
 }
 

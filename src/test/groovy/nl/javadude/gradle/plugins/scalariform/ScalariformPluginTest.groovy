@@ -57,7 +57,6 @@ case class Foo(name: String,
   }
 
   @Test
-  @Ignore
   void shouldAlignSingleLineCaseStatements() {
     project.scalariform {
       alignSingleLineCaseStatements = true

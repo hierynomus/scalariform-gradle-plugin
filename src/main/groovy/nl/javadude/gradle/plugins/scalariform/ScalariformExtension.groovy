@@ -9,7 +9,7 @@ class ScalariformExtension {
     prefs = prefs.setPreference(AlignParameters$.newInstance(), v)
   }
 
-  def alignSingleLineCaseStatements(boolean v) {
+  def setAlignSingleLineCaseStatements(boolean v) {
     prefs = prefs.setPreference(AlignSingleLineCaseStatements$.newInstance(), v)
   }
 

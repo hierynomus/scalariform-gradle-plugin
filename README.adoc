@@ -1,0 +1,62 @@
+= Scalariform Gradle Plugin
+Jeroen van Erp
+:plugin_version: 0.1.0
+
+image:https://travis-ci.org/hierynomus/scalariform-gradle-plugin.svg?branch=master[Build Status,link=https://travis-ci.org/hierynomus/scalariform-gradle-plugin]
+
+This plugin will add tasks that will allow you to automatically reformat your source code using the Scalariform formatter.
+
+== Usage
+This plugin is available through the http://plugins.gradle.org/[Gradle plugin exchange]. This means that there are a few different usage scenarios listed below.
+
+=== Gradle 2.1 and above
+In your `build.gradle` file add:
+
+[source,groovy,subs="verbatim,attributes"]
+----
+plugins {
+    id "com.github.hierynomus.scalariform" version "{plugin_version}"
+}
+----
+
+=== Gradle 1.x/2.0, latest license-gradle-plugin
+In your `build.gradle` file add:
+
+[source,groovy,subs="verbatim,attributes"]
+----
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "gradle.plugin.com.hierynomus.gradle.plugins:scalariform-gradle-plugin:{plugin_version}"
+  }
+}
+
+apply plugin: "com.github.hierynomus.scalariform"
+----
+
+== Functionality
+
+For each source set configured in your project, this plugin will add a `format<SourceSetName>Scala` Scalariform task.
+
+Furthermore the plugin will configure a `formatAllScala` task that depends on all the configured Scalariform tasks.
+
+You can configure the formatter using the following snippet:
+
+[source,groovy,subs="verbatim,attributes"]
+----
+plugins {
+  id "com.github.hierynomus.scalariform" version "{plugin_version}"
+}
+
+scalariform {
+  alignParameters = true
+  alignSingleLineCaseStatements = true
+}
+----
+
+For a complete listing of all possible configuration options, please consult the https://github.com/scala-ide/scalariform#preferences[Scalariform documentation].
+

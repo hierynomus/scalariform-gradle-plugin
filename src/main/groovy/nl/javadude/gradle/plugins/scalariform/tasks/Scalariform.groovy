@@ -215,10 +215,10 @@ class Scalariform extends DefaultTask {
 
   @TaskAction
   def format() {
-    logger.info("Going to reformat your codebase")
+    logger.info("Reformatting the '${sourceSet.name}' source set")
     sourceSet.allSource.include("**/*.scala").each { File f ->
       String contents = f.text
-      logger.info("Formatting $f")
+      logger.debug("Formatting '$f'")
       def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.newInstance() as Option<String>, 0, ScalaVersions.DEFAULT().toString())
       f.write(formattedContents)
     }

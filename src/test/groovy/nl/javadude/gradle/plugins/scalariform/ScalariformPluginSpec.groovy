@@ -199,9 +199,11 @@ import nebula.test.functional.ExecutionResult
 class ScalariformPluginSpec extends IntegrationSpec {
 
   private File srcDir
+  private File testDir
 
   def setup() {
     srcDir = directory("src/main/scala")
+    testDir = directory("src/test/scala")
     buildFile << """
 apply plugin: "com.github.hierynomus.scalariform"
 apply plugin: "scala"
@@ -224,16 +226,24 @@ apply plugin: "scala"
     file.text == "import scala.collection.mutable.{Map, ListBuffer}"
   }
 
-  def "should execute all individual tasks when calling formatAll"() {
+  def "should format test sourceset"() {
     given:
-    def file = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}")
+    def testFile = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}", testDir)
 
+    when:
+    def result = runTasksSuccessfully("formatTestScala")
+
+    then:
+    testFile.text == "import scala.collection.mutable.{Map, ListBuffer}"
+  }
+
+  def "should execute all individual tasks when calling formatAll"() {
     when:
     ExecutionResult result = runTasksSuccessfully("formatAllScala")
 
     then:
     result.wasExecuted("formatScala")
-    file.text == "import scala.collection.mutable.{Map, ListBuffer}"
+    result.wasExecuted("formatTestScala")
   }
 
   def "should align parameters"() {
@@ -302,8 +312,8 @@ class Person(
 }"""
   }
 
-  private File writeTestFile(String contents) {
-    def f = file("Test.scala", srcDir)
+  private File writeTestFile(String contents, File dir = srcDir) {
+    def f = file("Test.scala", dir)
     f << contents
     f
   }

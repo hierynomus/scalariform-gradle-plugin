@@ -193,112 +193,118 @@
  */
 package nl.javadude.gradle.plugins.scalariform
 
-import com.google.common.io.Files
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import spock.lang.Specification
+import nebula.test.IntegrationSpec
+import nebula.test.functional.ExecutionResult
 
-class ScalariformPluginSpec extends Specification {
+class ScalariformPluginSpec extends IntegrationSpec {
 
-  File projectDir
-  def formatTask
-  Project project
   private File srcDir
 
   def setup() {
-    projectDir = Files.createTempDir()
-    srcDir = new File(projectDir, "src/main/scala")
-    srcDir.mkdirs()
-    project = ProjectBuilder.builder().withProjectDir(projectDir).build()
-
-    project.apply plugin: "com.github.hierynomus.scalariform"
-
-    formatTask = project.tasks.formatScala
-  }
-
-  def cleanup() {
-    new AntBuilder().delete(dir: projectDir)
+    srcDir = directory("src/main/scala")
+    buildFile << """
+apply plugin: "com.github.hierynomus.scalariform"
+apply plugin: "scala"
+""".stripIndent()
   }
 
   def "should not fail on empty project"() {
     expect:
-    formatTask.execute()
+    runTasksSuccessfully("formatAllScala")
   }
 
   def "should format imports"() {
-    expect:
-    testFile("import scala.collection.mutable.{Map,ListBuffer}", "import scala.collection.mutable.{Map, ListBuffer}")
+    given:
+    def file = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}")
+
+    when:
+    runTasksSuccessfully("formatScala")
+
+    then:
+    file.text == "import scala.collection.mutable.{Map, ListBuffer}"
+  }
+
+  def "should execute all individual tasks when calling formatAll"() {
+    given:
+    def file = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}")
+
+    when:
+    ExecutionResult result = runTasksSuccessfully("formatAllScala")
+
+    then:
+    result.wasExecuted("formatScala")
+    file.text == "import scala.collection.mutable.{Map, ListBuffer}"
   }
 
   def "should align parameters"() {
     given:
-    project.scalariform {
-      alignParameters = true
-    }
-
-    expect:
-    testFile("""
+    buildFile << "scalariform { alignParameters = true }"
+    def file = writeTestFile("""
 case class Foo(name: String,
   bar: Int
-)""", """
+)""")
+
+    when:
+    runTasksSuccessfully("formatScala")
+
+    then:
+    file.text == """
 case class Foo(
   name: String,
   bar:  Int
-)""")
+)"""
   }
 
   def "should align single line case statements"() {
     given:
-    project.scalariform {
-      alignSingleLineCaseStatements = true
-    }
-
-    expect:
-    testFile("""class Foo() {
+    buildFile << "scalariform { alignSingleLineCaseStatements = true }"
+    def file = writeTestFile("""class Foo() {
   val x = 5
   x match {
     case i: Int => "Foo"
     case b: Boolean => "Boo!"
   }
-}""", """class Foo() {
+}""")
+
+    when:
+    runTasksSuccessfully("formatScala")
+
+    then:
+    file.text == """class Foo() {
   val x = 5
   x match {
     case i: Int     => "Foo"
     case b: Boolean => "Boo!"
   }
-}""")
+}"""
   }
 
   def "should double indent class declaration"() {
     given:
-    project.scalariform {
-      doubleIndentClassDeclaration = true
-    }
-
-    expect:
-    testFile("""
+    buildFile << "scalariform { doubleIndentClassDeclaration = true }"
+    def file = writeTestFile("""
 class Person(
   name: String,
   age: Int) {
   def method = ???
-}""", """
+}""")
+
+    when:
+    runTasksSuccessfully("formatScala")
+
+    then:
+    file.text == """
 class Person(
     name: String,
     age: Int
 ) {
   def method = ???
-}""")
-  }
-
-  private void testFile(String contents, String expectedContents) {
-    def file = writeTestFile(contents)
-    formatTask.execute()
-    assert file.text == expectedContents
+}"""
   }
 
   private File writeTestFile(String contents) {
-    def file = new File(srcDir, "Test.scala")
-    file.write(contents)
-    file
+    def f = file("Test.scala", srcDir)
+    f << contents
+    f
   }
 }

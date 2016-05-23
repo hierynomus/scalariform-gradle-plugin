@@ -194,6 +194,8 @@
 package nl.javadude.gradle.plugins.scalariform.tasks
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 import scala.None
 import scala.None$
@@ -208,14 +210,23 @@ class Scalariform extends DefaultTask {
 
   FormattingPreferences prefs
 
+  @Input
+  SourceSet sourceSet
+
   @TaskAction
   def format() {
-    logger.info("Goind to reformat your codebase")
-    project.fileTree(project.projectDir).include("**/*.scala").each { File f ->
+    logger.info("Going to reformat your codebase")
+    sourceSet.allSource.include("**/*.scala").each { File f ->
       String contents = f.text
       logger.info("Formatting $f")
       def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.newInstance() as Option<String>, 0, ScalaVersions.DEFAULT().toString())
       f.write(formattedContents)
     }
+//    project.fileTree(project.projectDir).include("**/*.scala").each { File f ->
+//      String contents = f.text
+//      logger.info("Formatting $f")
+//      def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.newInstance() as Option<String>, 0, ScalaVersions.DEFAULT().toString())
+//      f.write(formattedContents)
+//    }
   }
 }

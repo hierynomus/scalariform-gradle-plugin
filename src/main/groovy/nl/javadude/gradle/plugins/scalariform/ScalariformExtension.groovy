@@ -193,88 +193,27 @@
  */
 package nl.javadude.gradle.plugins.scalariform
 
-import scalariform.formatter.preferences.*
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import scalariform.formatter.preferences.AllPreferences
+import scalariform.formatter.preferences.FormattingPreferences$
+import scalariform.formatter.preferences.PreferenceDescriptor
 
 class ScalariformExtension {
+  private static final Logger logger = Logging.getLogger(ScalariformExtension.class)
+
   def prefs = FormattingPreferences$.newInstance().apply()
 
-  def setAlignParameters(boolean v) {
-    prefs = prefs.setPreference(AlignParameters$.newInstance(), v)
+  boolean hasProperty(String name) {
+    logger.debug("Checking missing property $name (${AllPreferences.preferencesByKey().contains(name)})")
+    AllPreferences.preferencesByKey().contains(name)
   }
 
-  def setAlignSingleLineCaseStatements(boolean v) {
-    prefs = prefs.setPreference(AlignSingleLineCaseStatements$.newInstance(), v)
-  }
-
-  def setAlignSingleLineCaseStatements_maxArrowIndent(int i) {
-    prefs = prefs.setPreference(AlignSingleLineCaseStatements.MaxArrowIndent$.newInstance(), i)
-  }
-
-  def setCompactControlReadability(boolean v) {
-    prefs = prefs.setPreference(CompactControlReadability$.newInstance(), v)
-  }
-
-  def setCompactStringConcatenation(boolean v) {
-    prefs = prefs.setPreference(CompactStringConcatenation$.newInstance(), v)
-  }
-
-  def setDoubleIndentClassDeclaration(boolean v) {
-    prefs = prefs.setPreference(DoubleIndentClassDeclaration$.newInstance(), v)
-  }
-
-  def setFormatXml(boolean v) {
-    prefs = prefs.setPreference(FormatXml$.newInstance(), v)
-  }
-
-  def setIndentLocalDefs(boolean v) {
-    prefs = prefs.setPreference(IndentLocalDefs$.newInstance(), v)
-  }
-
-  def setIndentPackageBlocks(boolean v) {
-    prefs = prefs.setPreference(IndentPackageBlocks$.newInstance(), v)
-  }
-
-  def setIndentSpaces(int i) {
-    prefs = prefs.setPreference(IndentSpaces$.newInstance(), i)
-  }
-
-  def setIndentWithTabs(boolean v) {
-    prefs = prefs.setPreference(IndentWithTabs$.newInstance(), v)
-  }
-
-  def setMultilineScaladocCommentsStartOnFirstLine(boolean v) {
-    prefs = prefs.setPreference(MultilineScaladocCommentsStartOnFirstLine$.newInstance(), v)
-  }
-
-  def setPreserveDanglingCloseParenthesis(boolean v) {
-    prefs = prefs.setPreference(PreserveDanglingCloseParenthesis$.newInstance(), v)
-  }
-
-  def setPlaceScaladocAsterisksBeneathSecondAsterisk(boolean v) {
-    prefs = prefs.setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk$.newInstance(), v)
-  }
-
-  def setPreserveSpaceBeforeArguments(boolean v) {
-    prefs = prefs.setPreference(PreserveSpaceBeforeArguments$.newInstance(), v)
-  }
-
-  def setRewriteArrowSymbols(boolean v) {
-    prefs = prefs.setPreference(RewriteArrowSymbols$.newInstance(), v)
-  }
-
-  def setSpaceBeforeColon(boolean v) {
-    prefs = prefs.setPreference(SpaceBeforeColon$.newInstance(), v)
-  }
-
-  def setSpaceInsideBrackets(boolean v) {
-    prefs = prefs.setPreference(SpaceInsideBrackets$.newInstance(), v)
-  }
-
-  def setSpaceInsideParentheses(boolean v) {
-    prefs = prefs.setPreference(SpaceInsideParentheses$.newInstance(), v)
-  }
-
-  def setSpacesWithinPatternBinders(boolean v) {
-    prefs = prefs.setPreference(SpacesWithinPatternBinders$.newInstance(), v)
+  void setProperty(String name, value) {
+    if (!hasProperty(name)) {
+      throw new MissingPropertyException("Missing property $name")
+    }
+    logger.lifecycle("Setting Scalariform preference '$name' to '$value'")
+    prefs = prefs.setPreference(AllPreferences.preferencesByKey().get(name).get() as PreferenceDescriptor, value)
   }
 }

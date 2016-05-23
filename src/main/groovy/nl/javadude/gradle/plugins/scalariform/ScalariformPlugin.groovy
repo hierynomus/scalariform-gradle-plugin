@@ -196,14 +196,27 @@ package nl.javadude.gradle.plugins.scalariform
 import nl.javadude.gradle.plugins.scalariform.tasks.Scalariform
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.plugins.JavaPluginConvention
 
 class ScalariformPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
-    def extension = project.extensions.create("scalariform", ScalariformExtension)
+    def extension = new ScalariformExtension()
+    project.extensions.add("scalariform", extension)
+    def formatAllTask = project.tasks.create("formatAllScala")
 
-    project.tasks.create("formatScala", Scalariform).configure {
-      conventionMapping.prefs = {-> extension.prefs }
+    project.plugins.withType(JavaBasePlugin) {
+      def jpc = project.convention.getPlugin(JavaPluginConvention)
+      jpc.sourceSets.all { sourceSet ->
+        def task = project.tasks.create(sourceSet.getTaskName("format", "Scala"), Scalariform).configure { t ->
+          t.sourceSet = sourceSet
+          t.conventionMapping.prefs = { -> extension.prefs }
+        }
+        formatAllTask.dependsOn task
+      }
     }
+
+
   }
 }

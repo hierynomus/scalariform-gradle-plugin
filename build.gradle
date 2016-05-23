@@ -1,84 +1,76 @@
+plugins {
+  id "groovy"
+  id "com.github.hierynomus.license" version "0.12.1"
+  id "org.ajoberstar.release-opinion" version "1.4.2"
+  id "com.gradle.plugin-publish" version "0.9.4"
+}
+
 defaultTasks 'build'
 
-apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'maven'
-apply plugin: 'signing'
+group = 'com.hierynomus.gradle.plugins'
 
-group = 'nl.javadude.gradle.plugins'
-version = "0.0.1-SNAPSHOT"
-
-repositories { mavenCentral() }
-
+repositories { jcenter() }
 
 dependencies {
-    compile "org.scala-lang:scala-library:2.10.1"
-    compile "org.scalariform:scalariform_2.10:0.1.4"
-    compile gradleApi()
-    testCompile 'junit:junit:4.11'
+  compile gradleApi()
+  compile localGroovy()
+  compile "org.scala-lang:scala-library:2.11.8"
+  compile "org.scalariform:scalariform_2.11:0.1.8"
+  testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+    exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+  }
+}
+
+release {
+  grgit = org.ajoberstar.grgit.Grgit.open(project.projectDir)
+}
+
+license {
+  mapping {
+    java = 'SLASHSTAR_STYLE'
+    groovy = 'SLASHSTAR_STYLE'
+    scala = 'SLASHSTAR_STYLE'
+  }
+}
+
+test {
+  afterSuite { descriptor, result ->
+    def indicator = "\u001B[32m✓\u001b[0m"
+    if (result.failedTestCount > 0) {
+      indicator = "\u001B[31m✘\u001b[0m"
+    }
+    logger.lifecycle("$indicator Test ${descriptor.name}; Executed: ${result.testCount}/\u001B[32m${result.successfulTestCount}\u001B[0m/\u001B[31m${result.failedTestCount}\u001B[0m")
+  }
+}
+
+// This disables the pedantic doclint feature of JDK8
+if (JavaVersion.current().isJava8Compatible()) {
+  tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+  }
 }
 
 task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
+  from sourceSets.main.allSource
+  classifier = 'sources'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
+  classifier = 'javadoc'
+  from javadoc.destinationDir
 }
 
 artifacts { archives sourcesJar, javadocJar }
 
-signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
-}
-
-
-uploadArchives {
-    dependsOn signArchives
-    doFirst {
-        repositories.mavenDeployer {
-            uniqueVersion = false
-            beforeDeployment { org.gradle.api.artifacts.maven.MavenDeployment deployment -> signing.signPom(deployment) }
-
-            //repository(url: "file://localhost/${rootProject.rootDir}/repo")
-
-            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
-            snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
-
-            pom.project {
-                name 'scalariform-gradle-plugin'
-                description 'Applies scalariform to all scala files in your project'
-                url 'https://github.com/hierynomus/scalariform-gradle-plugin'
-                inceptionYear '2013'
-
-                scm { url 'https://github.com/hierynomus/scalariform-gradle-plugin' }
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'hierynomus'
-                        name 'Jeroen van Erp'
-                        url 'http://www.javadude.nl/'
-                        email 'jeroen@javadude.nl'
-                        roles { role 'Developer' }
-                    }
-                }
-            }
-        }
+pluginBundle {
+  website = "https://github.com/hierynomus/scalariform-gradle-plugin"
+  vcsUrl = "https://github.com/hierynomus/scalariform-gradle-plugin.git"
+  description = "Reformats Scala source code according to your configured conventions"
+  plugins {
+    scalariformPlugin {
+      id = "com.github.hierynomus.scalariform"
+      displayName = "Scalariform plugin for Gradle"
+      tags = [ "gradle", "plugin", "scalariform", "scala", "formatting" ]
     }
+  }
 }
-

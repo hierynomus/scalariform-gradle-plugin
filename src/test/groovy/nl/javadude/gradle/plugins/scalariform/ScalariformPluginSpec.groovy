@@ -193,17 +193,112 @@
  */
 package nl.javadude.gradle.plugins.scalariform
 
-import nl.javadude.gradle.plugins.scalariform.tasks.Scalariform
-import org.gradle.api.Plugin
+import com.google.common.io.Files
 import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Specification
 
-class ScalariformPlugin implements Plugin<Project> {
-  @Override
-  void apply(Project project) {
-    def extension = project.extensions.create("scalariform", ScalariformExtension)
+class ScalariformPluginSpec extends Specification {
 
-    project.tasks.create("formatScala", Scalariform).configure {
-      conventionMapping.prefs = {-> extension.prefs }
+  File projectDir
+  def formatTask
+  Project project
+  private File srcDir
+
+  def setup() {
+    projectDir = Files.createTempDir()
+    srcDir = new File(projectDir, "src/main/scala")
+    srcDir.mkdirs()
+    project = ProjectBuilder.builder().withProjectDir(projectDir).build()
+
+    project.apply plugin: "com.github.hierynomus.scalariform"
+
+    formatTask = project.tasks.formatScala
+  }
+
+  def cleanup() {
+    new AntBuilder().delete(dir: projectDir)
+  }
+
+  def "should not fail on empty project"() {
+    expect:
+    formatTask.execute()
+  }
+
+  def "should format imports"() {
+    expect:
+    testFile("import scala.collection.mutable.{Map,ListBuffer}", "import scala.collection.mutable.{Map, ListBuffer}")
+  }
+
+  def "should align parameters"() {
+    given:
+    project.scalariform {
+      alignParameters = true
     }
+
+    expect:
+    testFile("""
+case class Foo(name: String,
+  bar: Int
+)""", """
+case class Foo(
+  name: String,
+  bar:  Int
+)""")
+  }
+
+  def "should align single line case statements"() {
+    given:
+    project.scalariform {
+      alignSingleLineCaseStatements = true
+    }
+
+    expect:
+    testFile("""class Foo() {
+  val x = 5
+  x match {
+    case i: Int => "Foo"
+    case b: Boolean => "Boo!"
+  }
+}""", """class Foo() {
+  val x = 5
+  x match {
+    case i: Int     => "Foo"
+    case b: Boolean => "Boo!"
+  }
+}""")
+  }
+
+  def "should double indent class declaration"() {
+    given:
+    project.scalariform {
+      doubleIndentClassDeclaration = true
+    }
+
+    expect:
+    testFile("""
+class Person(
+  name: String,
+  age: Int) {
+  def method = ???
+}""", """
+class Person(
+    name: String,
+    age: Int
+) {
+  def method = ???
+}""")
+  }
+
+  private void testFile(String contents, String expectedContents) {
+    def file = writeTestFile(contents)
+    formatTask.execute()
+    assert file.text == expectedContents
+  }
+
+  private File writeTestFile(String contents) {
+    def file = new File(srcDir, "Test.scala")
+    file.write(contents)
+    file
   }
 }

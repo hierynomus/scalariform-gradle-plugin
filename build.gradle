@@ -75,3 +75,5 @@ pluginBundle {
     }
   }
 }
+
+project.tasks.release.dependsOn project.tasks.publishPlugins

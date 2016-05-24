@@ -195,6 +195,7 @@ package nl.javadude.gradle.plugins.scalariform
 
 import nebula.test.IntegrationSpec
 import nebula.test.functional.ExecutionResult
+import spock.lang.Unroll
 
 class ScalariformPluginSpec extends IntegrationSpec {
 
@@ -215,17 +216,6 @@ apply plugin: "scala"
     runTasksSuccessfully("formatAllScala")
   }
 
-  def "should format imports"() {
-    given:
-    def file = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}")
-
-    when:
-    runTasksSuccessfully("formatScala")
-
-    then:
-    file.text == "import scala.collection.mutable.{Map, ListBuffer}"
-  }
-
   def "should format test sourceset"() {
     given:
     def testFile = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}", testDir)
@@ -244,72 +234,6 @@ apply plugin: "scala"
     then:
     result.wasExecuted("formatScala")
     result.wasExecuted("formatTestScala")
-  }
-
-  def "should align parameters"() {
-    given:
-    buildFile << "scalariform { alignParameters = true }"
-    def file = writeTestFile("""
-case class Foo(name: String,
-  bar: Int
-)""")
-
-    when:
-    runTasksSuccessfully("formatScala")
-
-    then:
-    file.text == """
-case class Foo(
-  name: String,
-  bar:  Int
-)"""
-  }
-
-  def "should align single line case statements"() {
-    given:
-    buildFile << "scalariform { alignSingleLineCaseStatements = true }"
-    def file = writeTestFile("""class Foo() {
-  val x = 5
-  x match {
-    case i: Int => "Foo"
-    case b: Boolean => "Boo!"
-  }
-}""")
-
-    when:
-    runTasksSuccessfully("formatScala")
-
-    then:
-    file.text == """class Foo() {
-  val x = 5
-  x match {
-    case i: Int     => "Foo"
-    case b: Boolean => "Boo!"
-  }
-}"""
-  }
-
-  def "should double indent class declaration"() {
-    given:
-    buildFile << "scalariform { doubleIndentClassDeclaration = true }"
-    def file = writeTestFile("""
-class Person(
-  name: String,
-  age: Int) {
-  def method = ???
-}""")
-
-    when:
-    runTasksSuccessfully("formatScala")
-
-    then:
-    file.text == """
-class Person(
-    name: String,
-    age: Int
-) {
-  def method = ???
-}"""
   }
 
   private File writeTestFile(String contents, File dir = srcDir) {

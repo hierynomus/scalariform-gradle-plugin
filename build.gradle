@@ -27,6 +27,7 @@ release {
 }
 
 license {
+  header = project.file("HEADER")
   mapping {
     java = 'SLASHSTAR_STYLE'
     groovy = 'SLASHSTAR_STYLE'

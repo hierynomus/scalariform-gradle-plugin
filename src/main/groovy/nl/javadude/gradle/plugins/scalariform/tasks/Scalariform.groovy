@@ -41,7 +41,7 @@ class Scalariform extends DefaultTask {
     sourceSet.allSource.include("**/*.scala").each { File f ->
       String contents = f.text
       logger.debug("Formatting '$f'")
-      def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.newInstance() as Option<String>, 0, ScalaVersions.DEFAULT().toString())
+      def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.MODULE$ as Option<String>, 0, ScalaVersions.DEFAULT().toString())
       f.write(formattedContents)
     }
 //    project.fileTree(project.projectDir).include("**/*.scala").each { File f ->

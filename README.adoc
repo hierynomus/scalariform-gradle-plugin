@@ -1,6 +1,6 @@
 = Scalariform Gradle Plugin
 Jeroen van Erp
-:plugin_version: 0.1.1
+:plugin_version: 0.1.2
 
 image:https://travis-ci.org/hierynomus/scalariform-gradle-plugin.svg?branch=master[Build Status,link=https://travis-ci.org/hierynomus/scalariform-gradle-plugin]
 
@@ -60,3 +60,7 @@ scalariform {
 
 For a complete listing of all possible configuration options, please consult the https://github.com/scala-ide/scalariform#preferences[Scalariform documentation].
 
+== Release Notes
+
+=== v0.1.2 (2016-06-27)
+- Merged https://github.com/hierynomus/gradle-scalariform-plugin/pulls/1[#1]: Fix for scala.MatchError.

@@ -16,6 +16,7 @@
 package nl.javadude.gradle.plugins.scalariform.tasks
 
 import nebula.test.ProjectSpec
+import spock.lang.Unroll
 
 class ScalariformSpec extends ProjectSpec {
 
@@ -113,21 +114,8 @@ class Person(
 }"""
   }
 
-  // Somehow adding all the cases and @Unroll-ing this method leads to the following error sometimes for some of the cases.
-  // scala.MatchError: None (of class scala.None$)
-  //  at scalariform.lexer.ScalaLexer.nextChar(ScalaLexer.scala:122)
-  //  at scalariform.lexer.ScalaOnlyLexer$class.fetchScalaToken(ScalaOnlyLexer.scala:23)
-  //  at scalariform.lexer.ScalaLexer.fetchScalaToken(ScalaLexer.scala:14)
-  //  at scalariform.lexer.ScalaLexer.next(ScalaLexer.scala:192)
-  //  at scalariform.lexer.WhitespaceAndCommentsGrouper.<init>(WhitespaceAndCommentsGrouper.scala:8)
-  //  at scalariform.lexer.ScalaLexer$.tokenise(ScalaLexer.scala:263)
-  //  at scalariform.formatter.SpecificFormatter$class.fullFormat(SpecificFormatter.scala:31)
-  //  at scalariform.formatter.ScalaFormatter$$anon$1.fullFormat(ScalaFormatter.scala:476)
-  //  at scalariform.formatter.ScalaFormatter$.formatAsEdits(ScalaFormatter.scala:485)
-  //  at scalariform.formatter.ScalaFormatter$.format(ScalaFormatter.scala:469)
-  //  at nl.javadude.gradle.plugins.scalariform.tasks.Scalariform.format_closure1(Scalariform.groovy:44)
-  // So we just test one (non-default-value) case at the moment.
-  def "should support non-boolean Scalariform preference 'danglingCloseParenthesis' with value 'prevent'"() {
+  @Unroll
+  def "should support non-boolean Scalariform preference 'danglingCloseParenthesis' with value '#value'"() {
     given:
     def file = writeTestFile(contents)
     project.scalariform { danglingCloseParenthesis = value }
@@ -139,8 +127,13 @@ class Person(
     file.text == expected
 
     where:
-    value     | contents                               | expected
+    value      | contents                             | expected
+    "prevent"  | "\ncase class Foo(\nbars: String)"   | "\ncase class Foo(\n  bars: String)"
     "prevent"  | "\ncase class Foo(\nbars: String\n)" | "\ncase class Foo(\n  bars: String)"
+    "preserve" | "\ncase class Foo(\nbars: String)"   | "\ncase class Foo(\n  bars: String)"
+    "preserve" | "\ncase class Foo(\nbars: String\n)" | "\ncase class Foo(\n  bars: String\n)"
+    "force"    | "\ncase class Foo(\nbars: String)"   | "\ncase class Foo(\n  bars: String\n)"
+    "force"    | "\ncase class Foo(\nbars: String\n)" | "\ncase class Foo(\n  bars: String\n)"
   }
 
   private File writeTestFile(String contents, File dir = srcDir) {

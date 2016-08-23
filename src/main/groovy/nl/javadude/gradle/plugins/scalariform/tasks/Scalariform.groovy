@@ -38,7 +38,7 @@ class Scalariform extends DefaultTask {
   @TaskAction
   def format() {
     logger.info("Reformatting the '${sourceSet.name}' source set")
-    sourceSet.allSource.include("**/*.scala").each { File f ->
+    sourceSet.allSource.filter {File f -> f.getAbsolutePath().endsWith(".scala")} .each { File f ->
       String contents = f.text
       logger.debug("Formatting '$f'")
       def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.MODULE$ as Option<String>, 0, ScalaVersions.DEFAULT().toString())

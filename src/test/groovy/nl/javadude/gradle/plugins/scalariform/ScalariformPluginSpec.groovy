@@ -23,10 +23,12 @@ class ScalariformPluginSpec extends IntegrationSpec {
 
   private File srcDir
   private File testDir
+  private File resourcesDir
 
   def setup() {
     srcDir = directory("src/main/scala")
     testDir = directory("src/test/scala")
+    resourcesDir = directory("src/main/resources")
     buildFile << """
 apply plugin: "com.github.hierynomus.scalariform"
 apply plugin: "scala"
@@ -38,9 +40,17 @@ apply plugin: "scala"
     runTasksSuccessfully("formatAllScala")
   }
 
+  def "should not fail if there are non-scala sources in the source sets"() {
+    given:
+    def testResourceFile = writeTestFile("not a scala source file, which should fail on format", resourcesDir, "Test.notscala")
+
+    expect:
+    runTasksSuccessfully("formatAllScala")
+  }
+
   def "should format test sourceset"() {
     given:
-    def testFile = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}", testDir)
+    def testFile = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}", testDir, "Test.scala")
 
     when:
     def result = runTasksSuccessfully("formatTestScala")
@@ -58,8 +68,8 @@ apply plugin: "scala"
     result.wasExecuted("formatTestScala")
   }
 
-  private File writeTestFile(String contents, File dir = srcDir) {
-    def f = file("Test.scala", dir)
+  private File writeTestFile(String contents, File dir = srcDir, String fileName) {
+    def f = file(fileName, dir)
     f << contents
     f
   }

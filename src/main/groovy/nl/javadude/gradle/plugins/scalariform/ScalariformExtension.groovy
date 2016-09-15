@@ -35,7 +35,7 @@ class ScalariformExtension {
     if (!hasProperty(name)) {
       throw new MissingPropertyException("Missing property $name")
     }
-    logger.lifecycle("Setting Scalariform preference '$name' to '$value'")
+    logger.info("Setting Scalariform preference '$name' to '$value'")
     def descriptor = AllPreferences.preferencesByKey().get(name).get() as PreferenceDescriptor
     if (value instanceof String) {
       value = descriptor.preferenceType().parseValue(value).right().get()

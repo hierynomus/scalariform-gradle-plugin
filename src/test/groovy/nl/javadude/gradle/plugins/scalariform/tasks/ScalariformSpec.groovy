@@ -44,7 +44,7 @@ class ScalariformSpec extends ProjectSpec {
     scalariformTask.execute()
 
     then:
-    file.text == "import scala.collection.mutable.{Map, ListBuffer}"
+    file.text == "import scala.collection.mutable.{ Map, ListBuffer }"
   }
 
   def "should align parameters"() {
@@ -62,8 +62,7 @@ case class Foo(name: String,
     file.text == """
 case class Foo(
   name: String,
-  bar:  Int
-)"""
+  bar:  Int)"""
   }
 
   def "should align single line case statements"() {
@@ -108,8 +107,7 @@ class Person(
     file.text == """
 class Person(
     name: String,
-    age: Int
-) {
+    age: Int) {
   def method = ???
 }"""
   }

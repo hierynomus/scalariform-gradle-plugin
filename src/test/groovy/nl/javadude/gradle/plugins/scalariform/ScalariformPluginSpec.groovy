@@ -56,7 +56,7 @@ apply plugin: "scala"
     def result = runTasksSuccessfully("formatTestScala")
 
     then:
-    testFile.text == "import scala.collection.mutable.{Map, ListBuffer}"
+    testFile.text == "import scala.collection.mutable.{ Map, ListBuffer }"
   }
 
   def "should execute all individual tasks when calling formatAll"() {

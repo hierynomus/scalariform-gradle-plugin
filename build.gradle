@@ -15,7 +15,7 @@ dependencies {
   compile gradleApi()
   compile localGroovy()
   compile "org.scala-lang:scala-library:2.12.1"
-  compile "com.github.machaval:scalariform_2.12:0.2.0"
+  compile "org.scalariform:scalariform_2.12:0.2.6"
   testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
     exclude group: 'org.codehaus.groovy', module: 'groovy-all'
   }

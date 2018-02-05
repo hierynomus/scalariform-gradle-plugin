@@ -90,9 +90,9 @@ case class Foo(
   }
 
 
-  def "should double indent class declaration"() {
+  def "should double indent constructor arguments"() {
     given:
-    project.scalariform { doubleIndentClassDeclaration = true }
+    project.scalariform { doubleIndentConstructorArguments = true }
     def file = writeTestFile("""
 class Person(
   name: String,

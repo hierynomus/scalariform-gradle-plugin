@@ -1,7 +1,7 @@
 plugins {
   id "groovy"
   id "com.github.hierynomus.license" version "0.12.1"
-  id "org.ajoberstar.release-opinion" version "1.4.2"
+  id 'pl.allegro.tech.build.axion-release' version '1.8.3'
   id "com.gradle.plugin-publish" version "0.9.4"
 }
 
@@ -22,9 +22,18 @@ dependencies {
   testCompile 'com.netflix.nebula:nebula-test:3.1.0'
 }
 
-release {
-  grgit = org.ajoberstar.grgit.Grgit.open(project.projectDir)
+scmVersion {
+  tag {
+    prefix = 'v'
+    versionSeparator = ''
+  }
+  hooks {
+    pre 'fileUpdate', [file: 'README.adoc', pattern: { v, c -> /:plugin_version: .*/}, replacement: { v, c -> ":plugin_version: $v" }]
+    pre 'commit'
+  }
 }
+
+project.version = scmVersion.version
 
 license {
   header = project.file("HEADER")
@@ -77,4 +86,5 @@ pluginBundle {
   }
 }
 
-project.tasks.release.dependsOn project.tasks.publishPlugins
+project.tasks.release.dependsOn(project.tasks.build)
+project.tasks.release.finalizedBy(project.tasks.publishPlugins)

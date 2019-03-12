@@ -134,9 +134,22 @@ class Person(
     "force"    | "\ncase class Foo(\nbars: String\n)" | "\ncase class Foo(\n  bars: String\n)"
   }
 
-  private File writeTestFile(String contents, File dir = srcDir) {
-    def f = new File(dir, "Test.scala")
-    f << contents
+  def "should support setting charSetName"() {
+    given:
+    String c = "case class F汉字(bar: String)"
+    def file = writeTestFile(c, "UTF-16")
+    project.scalariform { charSetName = "UTF-16" }
+
+    when:
+    scalariformTask.format()
+
+    then:
+    file.getText("UTF-16") == c
+  }
+  
+  private File writeTestFile(String contents, String charset = "UTF-8") {
+    def f = new File(srcDir, "Test.scala")
+    f.write(contents, charset)
     f
   }
 }

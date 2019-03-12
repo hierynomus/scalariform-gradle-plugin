@@ -34,6 +34,7 @@ class ScalariformPlugin implements Plugin<Project> {
         def task = project.tasks.create(sourceSet.getTaskName("format", "Scala"), Scalariform).configure { t ->
           t.sourceSet = sourceSet
           t.conventionMapping.prefs = { -> extension.prefs }
+          t.charSetName = { -> extension.charSetName }
         }
         formatAllTask.dependsOn task
       }

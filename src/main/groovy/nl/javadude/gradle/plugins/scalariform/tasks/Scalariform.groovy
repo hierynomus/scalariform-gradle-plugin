@@ -35,14 +35,17 @@ class Scalariform extends DefaultTask {
   @Input
   SourceSet sourceSet
 
+  @Input
+  def charSetName
+
   @TaskAction
   def format() {
     logger.info("Reformatting the '${sourceSet.name}' source set")
     sourceSet.allSource.filter { File f -> f.getAbsolutePath().endsWith(".scala") } .each { File f ->
-      String contents = f.text
+      String contents = f.getText("${charSetName}")
       logger.debug("Formatting '$f'")
       def formattedContents = ScalaFormatter$.newInstance().format(contents, prefs, None$.MODULE$ as Option<String>, 0, ScalaVersions.DEFAULT().toString())
-      f.write(formattedContents)
+      f.write(formattedContents, "${charSetName}")
     }
   }
 }

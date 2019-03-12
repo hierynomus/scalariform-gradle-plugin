@@ -26,6 +26,8 @@ class ScalariformExtension {
 
   def prefs = FormattingPreferences$.newInstance().apply()
 
+  def charSetName = "UTF-8"
+
   boolean hasProperty(String name) {
     logger.debug("Checking missing property $name (${AllPreferences.preferencesByKey().contains(name)})")
     AllPreferences.preferencesByKey().contains(name)
@@ -42,4 +44,5 @@ class ScalariformExtension {
     }
     prefs = prefs.setPreference(descriptor, value)
   }
+
 }

@@ -2,7 +2,8 @@ plugins {
   id "groovy"
   id "com.github.hierynomus.license" version "0.12.1"
   id 'pl.allegro.tech.build.axion-release' version '1.8.3'
-  id "com.gradle.plugin-publish" version "0.9.4"
+  id 'com.gradle.plugin-publish' version '0.10.0'
+  id 'java-gradle-plugin'
 }
 
 defaultTasks 'build'
@@ -16,10 +17,10 @@ dependencies {
   compile localGroovy()
   compile "org.scala-lang:scala-library:2.12.1"
   compile "org.scalariform:scalariform_2.12:0.2.6"
-  testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+  testCompile('org.spockframework:spock-core:1.2-groovy-2.5') {
     exclude group: 'org.codehaus.groovy', module: 'groovy-all'
   }
-  testCompile 'com.netflix.nebula:nebula-test:3.1.0'
+  testCompile 'com.netflix.nebula:nebula-test:7.1.8'
 }
 
 scmVersion {
@@ -73,18 +74,31 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 artifacts { archives sourcesJar, javadocJar }
 
-pluginBundle {
-  website = "https://github.com/hierynomus/scalariform-gradle-plugin"
-  vcsUrl = "https://github.com/hierynomus/scalariform-gradle-plugin.git"
-  description = "Reformats Scala source code according to your configured conventions"
-  plugins {
-    scalariformPlugin {
-      id = "com.github.hierynomus.scalariform"
-      displayName = "Scalariform plugin for Gradle"
-      tags = [ "gradle", "plugin", "scalariform", "scala", "formatting" ]
+gradlePlugin {
+    plugins {
+        scalariformPlugin {
+            id = "com.github.hierynomus.scalariform"
+            implementationClass = "nl.javadude.gradle.plugins.scalariform.ScalariformPlugin"
+        }
     }
-  }
 }
 
-project.tasks.release.dependsOn(project.tasks.build)
-project.tasks.release.finalizedBy(project.tasks.publishPlugins)
+pluginBundle {
+    website = "https://github.com/hierynomus/scalariform-gradle-plugin"
+    vcsUrl = "https://github.com/hierynomus/scalariform-gradle-plugin.git"
+    tags = [ "gradle", "plugin", "scalariform", "scala", "formatting" ]
+    plugins {
+        scalariformPlugin {
+            displayName = "Scalariform plugin for Gradle"
+            description = "Reformats Scala source code according to your configured conventions"
+        }
+    }
+}
+
+task forkedUploadRelease(type: GradleBuild) {
+  buildFile = project.buildFile
+  tasks = ["publishPlugins"]
+}
+
+project.tasks.release.dependsOn([project.tasks.build])
+project.tasks.release.finalizedBy(project.tasks.forkedUploadRelease)

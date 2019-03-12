@@ -41,7 +41,7 @@ class ScalariformSpec extends ProjectSpec {
     def file = writeTestFile("import scala.collection.mutable.{Map,ListBuffer}")
 
     when:
-    scalariformTask.execute()
+    scalariformTask.format()
 
     then:
     file.text == "import scala.collection.mutable.{ Map, ListBuffer }"
@@ -56,7 +56,7 @@ case class Foo(name: String,
 )""")
 
     when:
-    scalariformTask.execute()
+    scalariformTask.format()
 
     then:
     file.text == """
@@ -77,7 +77,7 @@ case class Foo(
 }""")
 
     when:
-    scalariformTask.execute()
+    scalariformTask.format()
 
     then:
     file.text == """class Foo() {
@@ -101,7 +101,7 @@ class Person(
 }""")
 
     when:
-    scalariformTask.execute()
+    scalariformTask.format()
 
     then:
     file.text == """
@@ -119,7 +119,7 @@ class Person(
     project.scalariform { danglingCloseParenthesis = value }
 
     when:
-    scalariformTask.execute()
+    scalariformTask.format()
 
     then:
     file.text == expected

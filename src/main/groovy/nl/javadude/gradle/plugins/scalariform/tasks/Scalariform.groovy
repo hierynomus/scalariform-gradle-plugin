@@ -29,7 +29,7 @@ import scalariform.formatter.preferences.FormattingPreferences
 import scalariform.formatter.preferences.FormattingPreferences$
 
 class Scalariform extends DefaultTask {
-
+  @Input
   FormattingPreferences prefs
 
   @Input
